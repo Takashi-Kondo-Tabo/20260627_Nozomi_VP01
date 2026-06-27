@@ -1,0 +1,18 @@
+# ブログ記事生成システム設定
+articles_dir: ./articles        # 既存記事ディレクトリ
+output_dir: ./output            # 生成記事の出力先
+index_path: ./index/index.json  # 検索インデックスのパス
+
+# Claude API設定
+model: claude-sonnet-4-6
+max_tokens: 4096
+temperature: 1.0
+
+# 検索設定
+max_reference_articles: 5      # 参照する類似記事の最大数
+min_article_length: 100        # インデックス対象の最小文字数
+
+# 記事生成設定
+blog_language: ja              # ja / en
+author_name: ""                # 著者名（任意）
+blog_style_hint: ""            # 文体ヒント（例: "です・ます調", "カジュアル"）

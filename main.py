@@ -22,6 +22,13 @@ from pathlib import Path
 
 import click
 import yaml
+
+# .env ファイルがあれば自動読み込み
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel

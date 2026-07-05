@@ -7,6 +7,7 @@ import re
 from collections import Counter
 
 import anthropic
+from typing import Optional
 
 from .indexer import load_index, tokenize
 
@@ -30,8 +31,8 @@ def _sample_titles(index: dict, n: int = 30) -> list[str]:
 
 def suggest_themes(
     config: dict,
-    index: dict | None = None,
-    index_path: str | None = None,
+    index: Optional[dict] = None,
+    index_path: Optional[str] = None,
     n_themes: int = 10,
     focus: str = "",
 ) -> str:

@@ -4,6 +4,7 @@ Claude APIを使って新しいブログ記事を生成する。
 """
 
 from pathlib import Path
+from typing import Optional
 
 import anthropic
 
@@ -74,12 +75,12 @@ Markdownで出力してください。先頭にYAML front matter（title, date, 
 def generate_article(
     theme: str,
     config: dict,
-    index: dict | None = None,
-    index_path: str | None = None,
-    top_k: int | None = None,
+    index: Optional[dict] = None,
+    index_path: Optional[str] = None,
+    top_k: Optional[int] = None,
     style_guide: str = "",
     extra_instruction: str = "",
-) -> tuple[str, list[dict]]:
+) -> tuple:
     if index is None:
         index = load_index(index_path or config["index_path"])
 

@@ -18,6 +18,7 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+from typing import Optional
 
 BASE_URL = "https://newhabits.blog.fc2.com"
 OUTPUT_DIR = Path(__file__).parent.parent / "articles"
@@ -38,7 +39,7 @@ HEADERS = {
 }
 
 
-def get_page(url: str, session: requests.Session) -> BeautifulSoup | None:
+def get_page(url: str, session: requests.Session) -> Optional[BeautifulSoup]:
     try:
         resp = session.get(url, headers=HEADERS, timeout=30)
         resp.raise_for_status()
@@ -49,7 +50,7 @@ def get_page(url: str, session: requests.Session) -> BeautifulSoup | None:
         return None
 
 
-def extract_article(soup: BeautifulSoup, url: str) -> dict | None:
+def extract_article(soup: BeautifulSoup, url: str) -> Optional[dict]:
     """
     FC2ブログの記事ページから本文・タイトル・日付・タグを抽出する。
 
@@ -302,7 +303,7 @@ def _follow_archive_pages(
         current_soup = next_soup
 
 
-def _find_next_page(soup: BeautifulSoup, visited: set) -> str | None:
+def _find_next_page(soup: BeautifulSoup, visited: set) -> Optional[str]:
     """「次のページ」リンクを返す。"""
     for a in soup.select("a[href]"):
         href = a.get("href", "")

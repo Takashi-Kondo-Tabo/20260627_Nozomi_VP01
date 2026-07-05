@@ -98,7 +98,36 @@ def generate_article(
         messages=[{"role": "user", "content": user}],
     )
 
-    return message.content[0].text, refs
+    article = message.content[0].text
+    article = _append_references(article, refs)
+    return article, refs
+
+
+def _append_references(article: str, refs: list[dict]) -> str:
+    """生成記事の末尾に参照記事のタイトルとURLを追加する。"""
+    if not refs:
+        return article
+
+    lines = ["\n\n---\n\n**参考にした過去記事**\n"]
+    for ref in refs:
+        title = ref.get("title", "")
+        # source_url を取得（パスからファイルを読んで抽出）
+        url = ""
+        try:
+            import re
+            text = Path(ref["path"]).read_text(encoding="utf-8", errors="ignore")
+            m = re.search(r"source_url: (.+)", text)
+            if m:
+                url = m.group(1).strip()
+        except OSError:
+            pass
+
+        if url:
+            lines.append(f"- [{title}]({url})")
+        else:
+            lines.append(f"- {title}")
+
+    return article + "\n".join(lines)
 
 
 def batch_generate(

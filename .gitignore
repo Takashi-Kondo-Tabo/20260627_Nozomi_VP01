@@ -1,3 +1,14 @@
 __pycache__/
 *.pyc
 .env
+
+# 実際のブログ記事・生成記事は個人の著作物のためコミットしない
+articles/*
+!articles/.gitkeep
+!articles/sample_*.md
+output/*
+!output/.gitkeep
+
+# 検索インデックス・文体ガイドのキャッシュ（articles/から再生成可能）
+index/*.json
+index/style_guide.txt

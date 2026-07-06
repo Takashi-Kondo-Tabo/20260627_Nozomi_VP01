@@ -13,6 +13,11 @@
 │   ├── indexer.py       # 記事インデックス構築・検索（TF-IDF）
 │   ├── generator.py     # Claude APIによる記事生成
 │   └── theme_suggester.py # 新テーマ提案
+├── webapp/
+│   ├── app.py           # Flask バックエンド（Web GUI）
+│   └── static/          # フロントエンド（HTML/CSS/JS）
+├── start_web.sh         # Web GUI 起動スクリプト
+├── start.sh             # CLI対話モード起動スクリプト
 ├── articles/            # 既存ブログ記事を配置（.md / .txt）
 ├── output/              # 生成された記事の出力先
 └── index/               # 検索インデックス（自動生成）
@@ -25,7 +30,17 @@ pip install -r requirements.txt
 export ANTHROPIC_API_KEY="your-api-key"
 ```
 
-## 使い方
+## Web GUIで使う（おすすめ）
+
+ブラウザ操作でダッシュボード・テーマ提案・記事生成・一括生成・検索・生成履歴をまとめて操作できます。
+
+```bash
+bash start_web.sh
+```
+
+起動後、ブラウザで `http://127.0.0.1:5050` を開いてください。
+
+## CLIで使う
 
 ### 1. 記事インデックスの構築
 

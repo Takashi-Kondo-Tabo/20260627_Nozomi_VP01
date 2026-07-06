@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ブログ記事生成システム</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <h1>📝 ブログ記事生成システム</h1>
+    <div id="status" class="status-pill">読込中...</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="dashboard">ダッシュボード</button>
+    <button class="tab-btn" data-tab="suggest">テーマ提案</button>
+    <button class="tab-btn" data-tab="generate">記事生成</button>
+    <button class="tab-btn" data-tab="batch">一括生成</button>
+    <button class="tab-btn" data-tab="search">記事検索</button>
+    <button class="tab-btn" data-tab="outputs">生成履歴</button>
+  </nav>
+
+  <main>
+    <!-- ダッシュボード -->
+    <section id="tab-dashboard" class="tab-panel active">
+      <div class="card">
+        <h2>インデックス状態</h2>
+        <div id="index-info" class="info-row">読込中...</div>
+        <button id="btn-build-index" class="btn">インデックスを再構築</button>
+        <button id="btn-analyze-style" class="btn btn-secondary">文体を分析</button>
+      </div>
+
+      <div class="card">
+        <h2>記事統計</h2>
+        <div id="stats-content">
+          <p class="muted">統計を読み込むには「更新」を押してください。</p>
+        </div>
+        <button id="btn-refresh-stats" class="btn btn-secondary">更新</button>
+      </div>
+
+      <div class="card" id="style-guide-card" style="display:none">
+        <h2>文体ガイド</h2>
+        <pre id="style-guide-text"></pre>
+      </div>
+    </section>
+
+    <!-- テーマ提案 -->
+    <section id="tab-suggest" class="tab-panel">
+      <div class="card">
+        <h2>新テーマを提案してもらう</h2>
+        <div class="form-row">
+          <label>重視したいジャンル・キーワード（任意）</label>
+          <input type="text" id="suggest-focus" placeholder="例: 健康・習慣">
+        </div>
+        <div class="form-row">
+          <label>提案数</label>
+          <input type="number" id="suggest-n" value="10" min="1" max="30">
+        </div>
+        <button id="btn-suggest" class="btn">テーマを提案してもらう</button>
+      </div>
+      <div id="suggest-loading" class="loading" style="display:none">生成中...</div>
+      <div id="suggest-results" class="theme-grid"></div>
+    </section>
+
+    <!-- 記事生成 -->
+    <section id="tab-generate" class="tab-panel">
+      <div class="card">
+        <h2>記事を生成する</h2>
+        <div class="form-row">
+          <label>テーマ</label>
+          <input type="text" id="gen-theme" placeholder="記事のテーマを入力してください">
+        </div>
+        <div class="form-row">
+          <label>追加指示（任意）</label>
+          <input type="text" id="gen-instruction" placeholder="例: 具体例を3つ入れる">
+        </div>
+        <div class="form-row inline">
+          <div>
+            <label>参照記事数</label>
+            <input type="number" id="gen-refs" value="5" min="1" max="20">
+          </div>
+          <div class="checkbox-row">
+            <label><input type="checkbox" id="gen-style" checked> 文体ガイドを使用する</label>
+          </div>
+        </div>
+        <button id="btn-generate" class="btn">記事を生成する</button>
+      </div>
+      <div id="gen-loading" class="loading" style="display:none">Claudeが執筆中...</div>
+      <div id="gen-result" class="card" style="display:none">
+        <div class="result-header">
+          <h2>生成結果</h2>
+          <span id="gen-saved-path" class="muted"></span>
+        </div>
+        <div id="gen-refs-list" class="refs-list"></div>
+        <div id="gen-article" class="article-preview"></div>
+      </div>
+    </section>
+
+    <!-- 一括生成 -->
+    <section id="tab-batch" class="tab-panel">
+      <div class="card">
+        <h2>複数テーマをまとめて生成</h2>
+        <div class="form-row">
+          <label>テーマ（1行に1つ）</label>
+          <textarea id="batch-themes" rows="8" placeholder="睡眠の質を上げるために試した7つのこと&#10;在宅ワークで集中力を保つコツ&#10;読書記録の続け方"></textarea>
+        </div>
+        <button id="btn-batch" class="btn">一括生成を実行</button>
+      </div>
+      <div id="batch-loading" class="loading" style="display:none">一括生成中...時間がかかります</div>
+      <div id="batch-results" class="card" style="display:none">
+        <h2>結果</h2>
+        <ul id="batch-list"></ul>
+      </div>
+    </section>
+
+    <!-- 検索 -->
+    <section id="tab-search" class="tab-panel">
+      <div class="card">
+        <h2>過去記事を検索</h2>
+        <div class="form-row inline">
+          <input type="text" id="search-query" placeholder="キーワードを入力">
+          <button id="btn-search" class="btn">検索</button>
+        </div>
+      </div>
+      <div id="search-results" class="search-results"></div>
+    </section>
+
+    <!-- 生成履歴 -->
+    <section id="tab-outputs" class="tab-panel">
+      <div class="card">
+        <h2>生成した記事一覧</h2>
+        <button id="btn-refresh-outputs" class="btn btn-secondary">更新</button>
+      </div>
+      <div class="output-layout">
+        <ul id="output-list" class="output-list"></ul>
+        <div id="output-viewer" class="article-preview">左のリストから記事を選んでください。</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

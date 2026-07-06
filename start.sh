@@ -6,7 +6,11 @@ cd "$SCRIPT_DIR"
 
 # .env からAPIキーを読み込む
 if [ -f ".env" ]; then
-    export $(grep -v '^#' .env | xargs)
+    while IFS='=' read -r key value; do
+        [[ "$key" =~ ^#.*$ ]] && continue
+        [[ -z "$key" ]] && continue
+        export "$key"="$value"
+    done < .env
 fi
 
 # APIキーの確認

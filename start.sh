@@ -6,11 +6,10 @@ cd "$SCRIPT_DIR"
 
 # .env からAPIキーを読み込む
 if [ -f ".env" ]; then
-    while IFS='=' read -r key value; do
-        [[ "$key" =~ ^#.*$ ]] && continue
-        [[ -z "$key" ]] && continue
-        export "$key"="$value"
-    done < .env
+    API_KEY=$(grep "^ANTHROPIC_API_KEY=" .env | cut -d'=' -f2- | tr -d '\r\n')
+    if [ -n "$API_KEY" ]; then
+        export ANTHROPIC_API_KEY="$API_KEY"
+    fi
 fi
 
 # APIキーの確認

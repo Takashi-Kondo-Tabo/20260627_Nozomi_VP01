@@ -122,10 +122,13 @@ def _append_references(article: str, refs: list[dict]) -> str:
         except OSError:
             pass
 
+        date = ref.get("date", "")
+        date_suffix = f" ({date})" if date else ""
+
         if url:
-            lines.append(f"- [{title}]({url})")
+            lines.append(f"- [{title}]({url}){date_suffix}")
         else:
-            lines.append(f"- {title}")
+            lines.append(f"- {title}{date_suffix}")
 
     return article + "\n".join(lines)
 

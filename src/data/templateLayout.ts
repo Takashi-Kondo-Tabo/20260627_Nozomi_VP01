@@ -31,11 +31,12 @@ export const BOTTOM5_LAYOUT: LayoutSlot[] = [
   { x: 85.998, y: 87.719, d: 16.161 },
 ]
 
-// Ranks 6-29, left to right along the ribbon's small stem nodes. Diameter
-// is a fixed size (the traced radii vary with detection noise) rather than
-// the traced value.
+// Ranks 6-29 sit on small stem nodes along the ribbon. Reading direction is
+// reversed from the top/bottom rows: the ribbon curves down to the right of
+// circle 5, so rank 6 is the rightmost (largest-x) node and rank 29 is the
+// leftmost, right before the ribbon turns orange for rank 30.
 const MID24_DIAMETER = 2.2
-const MID24_CENTERS: Array<[number, number]> = [
+const MID24_CENTERS_ASCENDING_X: Array<[number, number]> = [
   [8.711, 69.858],
   [10.485, 68.315],
   [12.751, 67.559],
@@ -62,11 +63,24 @@ const MID24_CENTERS: Array<[number, number]> = [
   [80.451, 64.927],
 ]
 
-export const MID24_LAYOUT: LayoutSlot[] = MID24_CENTERS.map(([x, y]) => ({
-  x,
-  y,
-  d: MID24_DIAMETER,
-}))
+export interface MidLayoutSlot extends LayoutSlot {
+  /** Vertical stack lane above the ribbon (0 = closest), so nearby labels don't overlap. */
+  lane: number
+}
+
+function assignLanes(centersRankOrder: Array<[number, number]>): MidLayoutSlot[] {
+  const MIN_X_GAP = 9.5 // % of container width between two labels sharing a lane
+  const laneLastX: number[] = []
+  return centersRankOrder.map(([x, y]) => {
+    let lane = laneLastX.findIndex((lastX) => lastX - x >= MIN_X_GAP)
+    if (lane === -1) lane = laneLastX.length
+    laneLastX[lane] = x
+    return { x, y, d: MID24_DIAMETER, lane }
+  })
+}
+
+// Reverse to rank order (6 = rightmost/largest x, 29 = leftmost/smallest x).
+export const MID24_LAYOUT: MidLayoutSlot[] = assignLanes([...MID24_CENTERS_ASCENDING_X].reverse())
 
 if (TOP5_LAYOUT.length !== 5 || BOTTOM5_LAYOUT.length !== 5 || MID24_LAYOUT.length !== 24) {
   throw new Error('template layout slot counts must be 5 / 24 / 5')

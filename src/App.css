@@ -49,6 +49,11 @@
   color: #b3261e;
 }
 
+.ranking-result__source {
+  font-weight: 600;
+  color: #555;
+}
+
 .ranking-result__incomplete,
 .ranking-result__warning {
   background: #fff4e5;

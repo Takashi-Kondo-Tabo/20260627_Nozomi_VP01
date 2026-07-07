@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { RankingInput } from './components/RankingInput'
-import { RankingResult } from './components/RankingResult'
+import { ParseFeedback } from './components/ParseFeedback'
+import { GraphicRecording } from './components/GraphicRecording'
 import type { ParseResult } from './lib/parseRanking'
 import './App.css'
 
@@ -16,7 +17,12 @@ function App() {
 
       <RankingInput onParsed={(result, sourceLabel) => setParsed({ result, sourceLabel })} />
 
-      {parsed && <RankingResult result={parsed.result} sourceLabel={parsed.sourceLabel} />}
+      {parsed && (
+        <>
+          <ParseFeedback result={parsed.result} sourceLabel={parsed.sourceLabel} />
+          <GraphicRecording ranking={parsed.result.ranking} />
+        </>
+      )}
     </main>
   )
 }

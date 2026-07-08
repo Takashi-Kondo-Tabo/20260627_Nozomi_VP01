@@ -19,3 +19,15 @@ body {
   margin: 0 auto;
   padding: 2rem 1.5rem 4rem;
 }
+
+@media print {
+  body {
+    min-height: 0;
+    background: none;
+  }
+
+  #root {
+    max-width: none;
+    padding: 0;
+  }
+}

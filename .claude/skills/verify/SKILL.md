@@ -50,8 +50,10 @@ feed the resulting PDF to `input[type=file]` via
 
 ## Flows worth driving
 
-1. **PDF upload** → `.ranking-result__list` renders 34
-   `.ranking-result__item`s, rank 1 and rank 34 match the fixture.
+1. **PDF upload** → `.gr__large-circle img` count is 10 (ranks 1-5 +
+   30-34), `.gr__small-dot` count is 24 (ranks 6-29); check
+   `img.naturalWidth > 0` for every illustration (broken paths fail
+   silently otherwise).
 2. **Paste fallback** → fill `textarea`, click the button with text
    `解析する`, same assertions.
 3. **Incomplete input probe** → paste only ranks 1–10, confirm
@@ -60,3 +62,34 @@ feed the resulting PDF to `input[type=file]` via
 
 Check `page.on('console', ...)` / `pageerror` for unexpected errors
 (pdfjs worker wiring is a common source of silent failures).
+
+## Verifying the PDF export (print-to-PDF)
+
+The "PDFとして保存" button calls `window.print()`; `@media print` CSS
+in App.css/GraphicRecording.css/index.css hides the input forms and
+sizes `.gr__canvas` to a custom `@page` (297mm × 244mm — taller than
+plain A4 landscape, empirically tuned so Chromium's print layout
+doesn't spill a near-empty page 2; don't trust the aspect-ratio math
+alone, verify page count directly after any layout change).
+
+Playwright's `page.pdf()` exercises the same print CSS path
+non-interactively (no OS dialog):
+
+```js
+await page.pdf({
+  path: 'out.pdf',
+  landscape: true,
+  printBackground: true,
+  preferCSSPageSize: true, // required to respect the custom @page size
+})
+```
+
+Then check with poppler-utils (`apt-get install poppler-utils` if
+missing):
+
+```bash
+pdfinfo out.pdf | grep Pages   # must be 1, not 2
+pdftotext out.pdf - | head     # must contain real Japanese text,
+                                # confirming labels are text objects,
+                                # not a rasterized screenshot
+```

@@ -20,7 +20,12 @@ function App() {
       {parsed && (
         <>
           <ParseFeedback result={parsed.result} sourceLabel={parsed.sourceLabel} />
-          <GraphicRecording ranking={parsed.result.ranking} />
+          <button type="button" className="print-button" onClick={() => window.print()}>
+            PDFとして保存（印刷ダイアログを開く）
+          </button>
+          <div className="print-area">
+            <GraphicRecording ranking={parsed.result.ranking} />
+          </div>
         </>
       )}
     </main>

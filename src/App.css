@@ -62,43 +62,26 @@
   padding: 0.5rem 0.75rem;
 }
 
-.ranking-result__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.5rem;
+.print-button {
+  display: block;
+  margin: 1rem 0;
 }
 
-.ranking-result__item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #fff;
-  border: 2px solid;
-  border-radius: 999px;
-  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
-}
+@media print {
+  .app-header,
+  .ranking-input,
+  .ranking-result__source,
+  .ranking-result__incomplete,
+  .ranking-result__warning,
+  .print-button {
+    display: none !important;
+  }
 
-.ranking-result__item--edge {
-  font-weight: 700;
-}
-
-.ranking-result__rank {
-  color: #fff;
-  border-radius: 50%;
-  width: 1.75rem;
-  height: 1.75rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  flex-shrink: 0;
-}
-
-.ranking-result__domain {
-  margin-left: auto;
-  font-size: 0.75rem;
-  color: #777;
+  /* Custom page size (slightly taller than A4 landscape) so the graphic's
+     own 1600:1130 aspect ratio fits within the printable area without
+     spilling onto a second page. */
+  @page {
+    size: 297mm 244mm;
+    margin: 10mm;
+  }
 }

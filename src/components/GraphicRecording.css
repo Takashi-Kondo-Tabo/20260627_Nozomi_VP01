@@ -5,6 +5,15 @@
   padding: 1rem;
 }
 
+@media print {
+  .gr {
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+  }
+}
+
 .gr__canvas {
   position: relative;
   width: 100%;

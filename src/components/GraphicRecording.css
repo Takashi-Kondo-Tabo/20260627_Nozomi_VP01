@@ -17,7 +17,7 @@
 .gr__canvas {
   position: relative;
   width: 100%;
-  aspect-ratio: 1600 / 1130;
+  aspect-ratio: 842 / 595;
 }
 
 .gr__template {
@@ -27,6 +27,12 @@
   height: 100%;
   pointer-events: none;
   user-select: none;
+}
+
+.gr__template svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .gr__large {

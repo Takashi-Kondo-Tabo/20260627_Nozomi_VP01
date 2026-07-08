@@ -15,7 +15,7 @@ export function GraphicRecording({ ranking }: Props) {
   return (
     <div className="gr">
       <div className="gr__canvas">
-        <img className="gr__template" src={`${import.meta.env.BASE_URL}graphic-recording-template.png`} alt="" />
+        <InlineSvg className="gr__template" src={`${import.meta.env.BASE_URL}graphic-recording-template.svg`} />
 
         {TOP5_LAYOUT.map((slot, i) => (
           <LargeBadge key={i} slot={slot} item={byRank.get(i + 1)} />

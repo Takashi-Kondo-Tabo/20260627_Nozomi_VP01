@@ -129,6 +129,32 @@ elements (via `pdftocairo -svg`) by which circle contains each path's
 coordinate centroid. Exclude paths whose centroid falls in the bottom
 ~55% of a circle's radius below center — that's the master sheet's own
 baked-in rank number/name band, which would otherwise conflict with
-the app's own rank badge for a given client's actual ranking. Give
-each circle's `<clipPath>` a slug-unique `id` (not a shared one) since
-multiple illustrations get inlined into the same DOM/page.
+the app's own rank badge for a given client's actual ranking. **Also
+exclude each illustration's own outer circle-boundary stroke**
+(bounding box width AND height both > `r*1.4`, centroid within
+`r*1.12` of the circle center — reliably exactly one path per circle):
+the app overlays illustrations on the *template's* circle outline (a
+separately hand-drawn circle in a different source PDF), so keeping
+the illustration's own ring too produces a visible double-outline that
+doesn't line up with the template — this was reported as "background
+misalignment" and the fix was dropping that one path, not
+repositioning anything.
+
+## The background template is also vector
+
+`public/graphic-recording-template.svg` is `pdftocairo -svg` output
+of the coach's blank template PDF (`viewBox="0 0 842 595"`, i.e. its
+native point space — same convention as the illustration circles
+above), inlined via `InlineSvg` the same way as the illustrations.
+`.gr__canvas`'s `aspect-ratio` CSS must stay `842 / 595` to match.
+`TOP5_LAYOUT` / `BOTTOM5_LAYOUT` / `MID24_LAYOUT` in
+`templateLayout.ts` are percentages, so they're resolution-independent
+and didn't need to change when the background switched from a raster
+PNG render of that same PDF to this native SVG.
+
+Don't re-derive `MID24_LAYOUT` from the template's vector `<path>`
+data by searching for small circular bounding boxes — that was tried
+and it finds the wrong set of marks (there's a uniformly-sized decoy
+cluster elsewhere on the page); the ribbon nodes aren't reliably
+isolable as single small closed paths. The existing raster
+Hough-circle-detected values are the ones actually in use.

@@ -20,7 +20,7 @@ export const DOMAINS: Record<Domain, DomainInfo> = {
 }
 
 export interface ThemeInfo {
-  /** Slug used for illustration file lookup, e.g. /illustrations/strategic.svg */
+  /** Slug used for illustration file lookup, e.g. /illustrations-svg/strategic.svg */
   id: string
   nameJa: string
   nameEn: string

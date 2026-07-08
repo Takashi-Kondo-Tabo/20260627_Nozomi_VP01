@@ -1,7 +1,8 @@
 import { DOMAINS } from '../data/themes'
 import { TOP5_LAYOUT, BOTTOM5_LAYOUT, MID24_LAYOUT, type LayoutSlot, type MidLayoutSlot } from '../data/templateLayout'
 import type { RankedTheme } from '../lib/parseRanking'
-import { illustrationSrc } from '../lib/illustrations'
+import { illustrationSvgSrc } from '../lib/illustrations'
+import { InlineSvg } from './InlineSvg'
 import './GraphicRecording.css'
 
 interface Props {
@@ -35,7 +36,7 @@ function LargeBadge({ slot, item }: { slot: LayoutSlot; item?: RankedTheme }) {
   return (
     <div className="gr__large" style={{ left: `${slot.x}%`, top: `${slot.y}%`, width: `${slot.d}%` }}>
       <div className="gr__large-circle" style={domain ? { borderColor: domain.color } : undefined}>
-        {item && <img src={illustrationSrc(item.theme.id)} alt={item.theme.nameJa} />}
+        {item && <InlineSvg className="gr__large-illustration" src={illustrationSvgSrc(item.theme.id)} />}
         {item && (
           <span className="gr__large-caption">
             <span className="gr__large-rank" style={{ background: domain!.color }}>

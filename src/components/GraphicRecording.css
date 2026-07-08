@@ -44,10 +44,15 @@
   background: #fff;
 }
 
-.gr__large-circle img {
+.gr__large-illustration {
+  position: absolute;
+  inset: 0;
+}
+
+.gr__large-illustration svg {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
 }
 
 .gr__large-caption {

@@ -36,6 +36,7 @@ function LargeBadge({ slot, item }: { slot: LayoutSlot; item?: RankedTheme }) {
   return (
     <div className="gr__large" style={{ left: `${slot.x}%`, top: `${slot.y}%`, width: `${slot.d}%` }}>
       <div className="gr__large-circle" style={domain ? { borderColor: domain.color } : undefined}>
+        <div className="gr__large-fill" />
         {item && <InlineSvg className="gr__large-illustration" src={illustrationSvgSrc(item.theme.id)} />}
         {item && (
           <span className="gr__large-caption">

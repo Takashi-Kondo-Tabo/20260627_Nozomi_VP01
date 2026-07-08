@@ -47,6 +47,16 @@
   aspect-ratio: 1;
   border-radius: 50%;
   overflow: hidden;
+}
+
+/* Inset a little from the outer clip so the white backdrop never paints
+   over the template's own hand-drawn line -- the circle is traced from
+   the artwork, not geometrically perfect, so the ink wobbles slightly
+   outside a mathematically exact circle at this radius in places. */
+.gr__large-fill {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
   background: #fff;
 }
 

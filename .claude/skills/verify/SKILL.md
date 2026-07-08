@@ -140,6 +140,14 @@ doesn't line up with the template — this was reported as "background
 misalignment" and the fix was dropping that one path, not
 repositioning anything.
 
+Each generated `public/illustrations-svg/<slug>.svg` is content-only —
+no `<clipPath>`, no circle, no background fill of its own. Circular
+clipping and the white fill both come from the CSS container
+(`.gr__large-circle`: `border-radius: 50%; overflow: hidden;
+background: #fff;`), so the *only* visible circle boundary anywhere is
+the template's. Don't reintroduce a clip-path/background circle inside
+the SVGs — that's what caused the double-outline in the first place.
+
 ## The background template is also vector
 
 `public/graphic-recording-template.svg` is `pdftocairo -svg` output

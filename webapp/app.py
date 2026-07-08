@@ -256,5 +256,8 @@ def api_output_content(filename):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5050))
-    print(f"ブログ記事生成システム Web GUI を起動しました: http://127.0.0.1:{port}")
-    app.run(host="127.0.0.1", port=port, debug=False)
+    host = os.environ.get("HOST", "127.0.0.1")
+    print(f"ブログ記事生成システム Web GUI を起動しました: http://{host}:{port}")
+    if host == "0.0.0.0":
+        print("同じWi-Fiネットワーク内の他端末（iPadなど）からもアクセスできます。")
+    app.run(host=host, port=port, debug=False)

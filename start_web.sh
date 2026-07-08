@@ -41,7 +41,18 @@ echo "==============================="
 echo "  ブログ記事生成システム Web GUI"
 echo "==============================="
 echo ""
-echo "起動後、ブラウザで http://127.0.0.1:5050 を開いてください。"
+
+if [ "$1" == "--lan" ]; then
+    export HOST="0.0.0.0"
+    LAN_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null)
+    echo "同じWi-Fi内の他端末（iPadなど）からアクセスできます。"
+    if [ -n "$LAN_IP" ]; then
+        echo "iPadのブラウザで http://${LAN_IP}:5050 を開いてください。"
+    fi
+else
+    echo "起動後、ブラウザで http://127.0.0.1:5050 を開いてください。"
+    echo "（iPadなど他端末から使う場合は: bash start_web.sh --lan）"
+fi
 echo "終了するには Ctrl+C を押してください。"
 echo ""
 

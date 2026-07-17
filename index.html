@@ -209,18 +209,57 @@ function saveSettings() {
   localStorage.setItem(STORAGE_KEY_MODEL, state.model);
 }
 
+// Claude sometimes emits a raw newline/tab inside a JSON string value (e.g. the haiku's
+// line breaks) instead of the escaped \n. That's invalid JSON, so JSON.parse rejects it.
+// This walks the string tracking whether we're inside a quoted value and escapes any
+// stray control characters found there before parsing.
+function escapeStrayControlChars(str) {
+  let result = '';
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (inString) {
+      if (escaped) { result += ch; escaped = false; continue; }
+      if (ch === '\\') { result += ch; escaped = true; continue; }
+      if (ch === '"') { result += ch; inString = false; continue; }
+      if (ch === '\n') { result += '\\n'; continue; }
+      if (ch === '\r') { continue; }
+      if (ch === '\t') { result += '\\t'; continue; }
+      result += ch;
+    } else {
+      if (ch === '"') inString = true;
+      result += ch;
+    }
+  }
+  return result;
+}
+
 function extractJSON(text) {
   let cleaned = (text || '').trim();
   cleaned = cleaned.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
   const start = cleaned.indexOf('{');
   const end = cleaned.lastIndexOf('}');
   if (start === -1 || end === -1) {
-    throw new Error('AIの応答を解析できませんでした。もう一度お試しください。');
+    const err = new Error('AIの応答を解析できませんでした。もう一度お試しください。');
+    err.isParseError = true;
+    throw err;
   }
-  return JSON.parse(cleaned.slice(start, end + 1));
+  const jsonStr = cleaned.slice(start, end + 1);
+  try {
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    try {
+      return JSON.parse(escapeStrayControlChars(jsonStr));
+    } catch (e2) {
+      const err = new Error('AIの応答を解析できませんでした。もう一度お試しください。');
+      err.isParseError = true;
+      throw err;
+    }
+  }
 }
 
-async function callClaude(system, userText, maxTokens = 400) {
+async function callClaudeOnce(system, userText, maxTokens) {
   if (!state.apiKey) {
     throw new Error('先に設定欄でAnthropic APIキーを入力してください。');
   }
@@ -247,6 +286,17 @@ async function callClaude(system, userText, maxTokens = 400) {
   const data = await res.json();
   const text = (data.content || []).map(c => c.text || '').join('');
   return extractJSON(text);
+}
+
+// The model occasionally returns malformed/truncated JSON. Since the request is cheap
+// and fast, one silent retry resolves most of these without bothering the user.
+async function callClaude(system, userText, maxTokens = 500) {
+  try {
+    return await callClaudeOnce(system, userText, maxTokens);
+  } catch (e) {
+    if (!e.isParseError) throw e;
+    return await callClaudeOnce(system, userText, maxTokens);
+  }
 }
 
 const SCORE_SYSTEM = `あなたは俳句の専門家審査員です。与えられた俳句を10点満点で採点してください。

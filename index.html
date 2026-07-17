@@ -6,7 +6,7 @@
 <title>俳句道場 - AIと詠む一句</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Noto+Sans+JP:wght@400;500;700&family=Yomogi&display=swap" rel="stylesheet">
 <style>
   :root {
     --washi: #f6f1e6;
@@ -125,6 +125,30 @@
   .card-draw .icon { font-size: 2rem; }
   .card-draw h4 { font-family:'Shippori Mincho',serif; color:#7a5b0a; margin: 6px 0 4px; font-size:1.05rem; }
   .card-draw p { font-size: 0.85rem; color:#5c4a1e; margin:0; }
+
+  .choitashi-logo {
+    text-align: center; padding: 14px 10px 10px; margin-bottom: 12px;
+    background: #fffdf8; border: 1px solid #e4dcc8; border-radius: 14px;
+  }
+  .ct-word {
+    font-family: 'Yomogi', cursive; font-weight: 400; line-height: 1.05;
+    background-clip: text; -webkit-background-clip: text; color: transparent;
+    -webkit-text-stroke: 1.6px var(--ct-outline); paint-order: stroke fill;
+    display: inline-block; transform: rotate(var(--ct-tilt, 0deg));
+  }
+  .ct-word.ct-main {
+    --ct-outline: #2f9fe0; --ct-tilt: -1.5deg;
+    font-size: 3rem;
+    background-image: repeating-linear-gradient(45deg, #f5a742 0 7px, #fce3bd 7px 14px);
+  }
+  .ct-line2 { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:2px; }
+  .ct-word.ct-sub {
+    --ct-outline: #1c2b5e; --ct-tilt: 1deg;
+    font-size: 2.5rem;
+    background-image: repeating-linear-gradient(45deg, #ef5da8 0 6px, #fbd6e8 6px 12px);
+  }
+  .ct-doodles { font-size: 1.7rem; line-height:1; transform: rotate(-4deg); }
+  .ct-credit { font-family: 'Yomogi', cursive; font-size: 0.78rem; color: #6b6355; text-align: right; margin-top: 6px; padding-right: 4px; }
 
   .history-item { border-top: 1px solid #ece3d0; padding: 12px 0; }
   .history-item:first-child { border-top:none; }
@@ -560,6 +584,18 @@ function renderLoading(msg) {
   return `<div class="loading"><div class="spinner"></div>${escapeHtml(msg)}</div>`;
 }
 
+function renderChoitashiLogo() {
+  return `
+  <div class="choitashi-logo">
+    <div class="ct-word ct-main">ちょいたし</div>
+    <div class="ct-line2">
+      <span class="ct-doodles">🐱🐤</span>
+      <span class="ct-word ct-sub">カード</span>
+    </div>
+    <div class="ct-credit">2026.07.18　制作：多ぁ望＋くるすてぃーぬ</div>
+  </div>`;
+}
+
 function renderScoreBlock(entry) {
   const pct = Math.max(0, Math.min(100, (entry.score / 10) * 100));
   return `
@@ -603,6 +639,7 @@ function renderResult() {
     `;
   } else {
     cardSection = `
+    ${renderChoitashiLogo()}
     <button class="btn btn-accent btn-block" ${state.loading?'disabled':''} onclick="Actions.drawTipCard()">
       🌸 ちょいたしカードを引いてブラッシュアップする
     </button>`;

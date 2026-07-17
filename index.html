@@ -150,6 +150,7 @@
     display:inline-block; background:#eef2f7; color:var(--indigo);
     padding:3px 10px; border-radius:999px; font-size:0.78rem; margin:2px 4px 2px 0;
   }
+  .kigo-description { font-size: 0.82rem; color: #6b7280; margin: 4px 0 0; line-height: 1.5; }
   footer.foot { text-align:center; font-size:0.75rem; color:#9aa0a6; margin-top: 30px; }
 </style>
 </head>
@@ -301,8 +302,9 @@ async function callClaude(system, userText, maxTokens = 500) {
 
 const SCORE_SYSTEM = `あなたは俳句の専門家審査員です。与えられた俳句を10点満点で採点してください。
 採点基準: 季語の有無と効果的な使用、五七五のリズム、情景の鮮明さ、独創性・意外性、余韻の深さ。
+句に季語が含まれていれば、その季語と、季節・意味・情景を説明する解説文も添えてください。季語が無ければ空文字にしてください。
 出力は必ず次のJSON形式のみで返してください。説明文やマークダウンのコードブロックは一切付けないこと。
-{"score": 数値(0から10、小数点1桁まで可), "goodPoint": "良い点を一文で", "improvement": "さらに良くするヒントを一文で"}`;
+{"score": 数値(0から10、小数点1桁まで可), "goodPoint": "良い点を一文で", "improvement": "さらに良くするヒントを一文で", "kigo": "句に含まれる季語（無ければ空文字）", "kigoDescription": "その季語の季節・意味・情景を説明する解説文を一文で（季語が無ければ空文字）"}`;
 
 const GEN_SYSTEM = `あなたは経験豊かな俳人です。ユーザーから与えられたキーワードをもとに、五七五の俳句を1句作ってください。季語を適切に含めてください。
 出力は必ず次のJSON形式のみで返してください。説明文やマークダウンのコードブロックは一切付けないこと。
@@ -371,7 +373,8 @@ const Actions = {
         goodPoint: scored.goodPoint,
         improvement: scored.improvement,
         note: gen.note,
-        kigo: gen.kigo,
+        kigo: scored.kigo || gen.kigo,
+        kigoDescription: scored.kigoDescription,
       }];
       state.usedCardIndices = [];
       state.currentCard = null;
@@ -394,6 +397,8 @@ const Actions = {
         score: scored.score,
         goodPoint: scored.goodPoint,
         improvement: scored.improvement,
+        kigo: scored.kigo,
+        kigoDescription: scored.kigoDescription,
       }];
       state.usedCardIndices = [];
       state.currentCard = null;
@@ -431,6 +436,8 @@ const Actions = {
         improvement: scored.improvement,
         cardUsed: state.currentCard,
         delta: +(scored.score - prevScore).toFixed(1),
+        kigo: scored.kigo,
+        kigoDescription: scored.kigoDescription,
       });
       state.currentCard = null;
       state.brushDraft = '';
@@ -557,7 +564,10 @@ function renderScoreBlock(entry) {
     </div>
     <div class="comment-row"><span class="tag good">良い点</span><span>${escapeHtml(entry.goodPoint || '')}</span></div>
     <div class="comment-row"><span class="tag tip">ヒント</span><span>${escapeHtml(entry.improvement || '')}</span></div>
-    ${entry.kigo ? `<div style="margin-top:8px;"><span class="kw-chip">季語: ${escapeHtml(entry.kigo)}</span></div>` : ''}
+    ${entry.kigo ? `
+    <div style="margin-top:8px;"><span class="kw-chip">季語: ${escapeHtml(entry.kigo)}</span></div>
+    ${entry.kigoDescription ? `<p class="kigo-description">${escapeHtml(entry.kigoDescription)}</p>` : ''}
+    ` : ''}
   `;
 }
 

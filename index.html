@@ -417,6 +417,12 @@ const Actions = {
     render();
   },
 
+  swapCard() {
+    state.currentCard = drawCard();
+    state.error = '';
+    render();
+  },
+
   cancelBrush() {
     state.currentCard = null;
     render();
@@ -582,6 +588,7 @@ function renderResult() {
       <div class="icon">${state.currentCard.icon}</div>
       <h4>🌸 ちょいたしカード:「${escapeHtml(state.currentCard.title)}」</h4>
       <p>${escapeHtml(state.currentCard.tip)}</p>
+      <button class="btn btn-ghost" style="margin-top:12px; background:#fffdf8;" ${state.loading?'disabled':''} onclick="Actions.swapCard()">🔄 カード交換</button>
     </div>
     <label class="field-label">この俳句をブラッシュアップしてみましょう</label>
     <textarea rows="3" oninput="Actions.setBrushDraft(this.value)">${escapeHtml(state.brushDraft)}</textarea>

@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>俳句道場 - AIと詠む一句</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --washi: #f6f1e6;
+    --washi-dark: #ece3d0;
+    --ink: #263544;
+    --indigo: #223a5e;
+    --indigo-light: #375581;
+    --vermillion: #c0392b;
+    --gold: #b8860b;
+    --card-bg: #fffdf8;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: var(--washi);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(34,58,94,0.05) 0, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(192,57,43,0.05) 0, transparent 40%);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .serif { font-family: 'Shippori Mincho', serif; }
+  #app { max-width: 720px; margin: 0 auto; padding: 24px 16px 80px; }
+  header.top { text-align: center; margin-bottom: 20px; }
+  header.top h1 {
+    font-family: 'Shippori Mincho', serif; font-weight: 800;
+    font-size: 1.9rem; color: var(--indigo); margin: 0 0 4px;
+    letter-spacing: 0.05em;
+  }
+  header.top p { color: #6b7280; font-size: 0.85rem; margin: 0; }
+
+  .panel {
+    background: var(--card-bg);
+    border: 1px solid #e4dcc8;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(38,53,68,0.06);
+  }
+  .settings summary {
+    cursor: pointer; font-size: 0.85rem; color: var(--indigo-light);
+    font-weight: 500; outline: none;
+  }
+  .settings[open] summary { margin-bottom: 12px; }
+  label.field-label { display:block; font-size: 0.78rem; color:#6b7280; margin-bottom:4px; font-weight:500;}
+  input[type=text], input[type=password], textarea, select {
+    width: 100%; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid #d8cfb8; background: #fffef9;
+    font-family: inherit; font-size: 0.95rem; color: var(--ink);
+    resize: vertical;
+  }
+  input:focus, textarea:focus, select:focus { outline: 2px solid var(--indigo-light); outline-offset: 1px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .row > * { flex:1; min-width: 140px; }
+
+  .btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding: 11px 18px; border-radius: 999px; border: none;
+    font-weight: 700; font-size: 0.92rem; cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--indigo); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--indigo-light); }
+  .btn-accent { background: var(--vermillion); color: #fff; }
+  .btn-accent:hover:not(:disabled) { background: #d9534f; }
+  .btn-ghost { background: transparent; color: var(--indigo); border: 1px solid var(--indigo); }
+  .btn-ghost:hover:not(:disabled) { background: rgba(34,58,94,0.06); }
+  .btn-block { width: 100%; }
+
+  .mode-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .mode-grid { grid-template-columns: 1fr; } }
+  .mode-card {
+    background: var(--card-bg); border: 1px solid #e4dcc8; border-radius: 16px;
+    padding: 22px 18px; text-align: center; cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .mode-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(38,53,68,0.12); }
+  .mode-card .icon { font-size: 2.2rem; margin-bottom: 8px; }
+  .mode-card h3 { font-family:'Shippori Mincho',serif; margin: 0 0 6px; color: var(--indigo); font-size:1.1rem; }
+  .mode-card p { font-size: 0.82rem; color:#6b7280; margin:0; line-height:1.5; }
+
+  .haiku-display {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.5rem; font-weight: 600; color: var(--indigo);
+    white-space: pre-line; text-align: center; line-height: 2.1;
+    padding: 20px 10px; background: linear-gradient(180deg, #fffef9, #f9f4e7);
+    border-radius: 10px; border: 1px dashed #cbbf9e; margin-bottom: 14px;
+  }
+
+  .score-wrap { display:flex; align-items:center; gap: 14px; margin-bottom: 10px; }
+  .score-num { font-family:'Shippori Mincho',serif; font-size: 2.4rem; font-weight: 800; color: var(--vermillion); line-height:1; }
+  .score-num small { font-size: 1rem; color:#6b7280; font-weight:500; }
+  .score-bar-bg { flex:1; height: 10px; background:#e9e2cf; border-radius: 999px; overflow:hidden; }
+  .score-bar-fill { height:100%; background: linear-gradient(90deg, var(--gold), var(--vermillion)); border-radius:999px; transition: width .5s ease; }
+
+  .comment-row { display:flex; gap:8px; font-size: 0.88rem; margin-bottom: 6px; align-items:flex-start; }
+  .comment-row .tag {
+    flex-shrink:0; font-size: 0.72rem; font-weight:700; padding: 2px 8px; border-radius: 999px;
+    color:#fff;
+  }
+  .tag.good { background: #2e7d32; }
+  .tag.tip { background: var(--indigo-light); }
+
+  .hint-box { background: #eef2f7; border-left: 4px solid var(--indigo-light); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+  .hint-box .row-item { font-size: 0.88rem; margin-bottom: 6px; }
+  .hint-box .row-item b { color: var(--indigo); }
+
+  .card-draw {
+    background: linear-gradient(135deg, #fff9ec, #fdeed1);
+    border: 2px solid var(--gold); border-radius: 14px;
+    padding: 18px; text-align:center; margin-bottom: 14px;
+  }
+  .card-draw .icon { font-size: 2rem; }
+  .card-draw h4 { font-family:'Shippori Mincho',serif; color:#7a5b0a; margin: 6px 0 4px; font-size:1.05rem; }
+  .card-draw p { font-size: 0.85rem; color:#5c4a1e; margin:0; }
+
+  .history-item { border-top: 1px solid #ece3d0; padding: 12px 0; }
+  .history-item:first-child { border-top:none; }
+  .history-head { display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:#6b7280; margin-bottom:4px;}
+  .history-haiku { font-family:'Shippori Mincho',serif; font-size:1.05rem; white-space:pre-line; color:var(--ink); margin-bottom:4px; }
+  .delta { font-weight:700; padding:1px 8px; border-radius:999px; font-size:0.78rem; }
+  .delta.up { background:#e3f4e6; color:#2e7d32; }
+  .delta.down { background:#fdeaea; color:#b3261e; }
+  .delta.flat { background:#eee; color:#6b7280; }
+
+  .error-box { background:#fdeaea; border:1px solid #f2b8b5; color:#b3261e; padding:10px 14px; border-radius:8px; font-size:0.85rem; margin-bottom:14px; }
+  .loading { text-align:center; padding: 24px; color:#6b7280; font-size:0.9rem; }
+  .spinner {
+    width:26px; height:26px; margin:0 auto 10px; border-radius:50%;
+    border: 3px solid #e4dcc8; border-top-color: var(--vermillion);
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .back-link { display:inline-block; font-size:0.85rem; color:var(--indigo-light); cursor:pointer; margin-bottom:10px; }
+  .back-link:hover { text-decoration: underline; }
+  .kw-chip {
+    display:inline-block; background:#eef2f7; color:var(--indigo);
+    padding:3px 10px; border-radius:999px; font-size:0.78rem; margin:2px 4px 2px 0;
+  }
+  footer.foot { text-align:center; font-size:0.75rem; color:#9aa0a6; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const STORAGE_KEY_API = 'haiku_app_api_key';
+const STORAGE_KEY_MODEL = 'haiku_app_model';
+
+const CARD_DECK = [
+  { icon: '🌈', title: '色を一つ足す', tip: '俳句の中に色彩を表す言葉（紅、白、青など）を一つ加えてみましょう。' },
+  { icon: '👂', title: '音を意識する', tip: '鳥の声、雨音、風の音など、聞こえてくる音を一つ描写に加えてみましょう。' },
+  { icon: '✋', title: '触感を加える', tip: '冷たい、温かい、柔らかいなど、肌で感じる感覚を一語入れてみましょう。' },
+  { icon: '🔍', title: '具体的な名詞に', tip: '「花」を「桜」、「鳥」を「雀」のように、より具体的な言葉に置き換えてみましょう。' },
+  { icon: '⏳', title: '時間の経過をにおわせる', tip: '「夕暮れ」「明け方」など、時間の流れを感じさせる言葉を入れてみましょう。' },
+  { icon: '🎭', title: '擬人化してみる', tip: '自然物を人のように表現してみましょう（例:「風が笑う」）。' },
+  { icon: '⚖️', title: '対比を作る', tip: '「静と動」「大と小」など、対照的な要素を組み合わせてみましょう。' },
+  { icon: '✂️', title: '切れ字を使う', tip: '「や」「かな」「けり」などの切れ字を使い、句に余韻を作ってみましょう。' },
+  { icon: '🖼️', title: '余白を残す', tip: 'すべてを説明せず、一部を読み手の想像に委ねてみましょう。' },
+  { icon: '🔢', title: '数字を入れてみる', tip: '「一つ」「三羽」など、具体的な数を入れると情景が締まります。' },
+  { icon: '👀', title: '視点を変えてみる', tip: '遠くから見た景色を、近くのものへ視点を移してみましょう。' },
+  { icon: '🍃', title: '季語を主役にする', tip: '季語をもっと句の中心に据えてみましょう。' },
+  { icon: '🤫', title: '動詞を減らす', tip: '動詞を一つ減らし、名詞の並びだけで情景を描いてみましょう。' },
+  { icon: '🌙', title: '静けさを描く', tip: '音のない、静かな瞬間を切り取ってみましょう。' },
+  { icon: '💭', title: '心情語を消す', tip: '「嬉しい」「悲しい」など感情語を消し、情景だけで感情を暗示してみましょう。' },
+  { icon: '🌸', title: '五感を足す', tip: 'まだ使っていない感覚（視覚以外の感覚）を一つ加えてみましょう。' },
+];
+
+const MODELS = [
+  { value: 'claude-sonnet-5', label: 'Claude Sonnet 5（バランス型・推奨）' },
+  { value: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5（高速・低コスト）' },
+  { value: 'claude-opus-4-8', label: 'Claude Opus 4.8（最高品質）' },
+];
+
+const state = {
+  apiKey: localStorage.getItem(STORAGE_KEY_API) || '',
+  model: localStorage.getItem(STORAGE_KEY_MODEL) || 'claude-sonnet-5',
+  screen: 'home',
+  keywords: '',
+  hintData: null,
+  hintLoading: false,
+  userDraft: '',
+  loading: false,
+  error: '',
+  history: [],
+  usedCardIndices: [],
+  currentCard: null,
+  brushDraft: '',
+};
+
+function saveSettings() {
+  localStorage.setItem(STORAGE_KEY_API, state.apiKey);
+  localStorage.setItem(STORAGE_KEY_MODEL, state.model);
+}
+
+function extractJSON(text) {
+  let cleaned = (text || '').trim();
+  cleaned = cleaned.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if (start === -1 || end === -1) {
+    throw new Error('AIの応答を解析できませんでした。もう一度お試しください。');
+  }
+  return JSON.parse(cleaned.slice(start, end + 1));
+}
+
+async function callClaude(system, userText, maxTokens = 400) {
+  if (!state.apiKey) {
+    throw new Error('先に設定欄でAnthropic APIキーを入力してください。');
+  }
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': state.apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: state.model,
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: userText }],
+    }),
+  });
+  if (!res.ok) {
+    let detail = '';
+    try { detail = (await res.json()).error?.message || ''; } catch (e) {}
+    throw new Error(`APIエラー (${res.status}) ${detail}`);
+  }
+  const data = await res.json();
+  const text = (data.content || []).map(c => c.text || '').join('');
+  return extractJSON(text);
+}
+
+const SCORE_SYSTEM = `あなたは俳句の専門家審査員です。与えられた俳句を10点満点で採点してください。
+採点基準: 季語の有無と効果的な使用、五七五のリズム、情景の鮮明さ、独創性・意外性、余韻の深さ。
+出力は必ず次のJSON形式のみで返してください。説明文やマークダウンのコードブロックは一切付けないこと。
+{"score": 数値(0から10、小数点1桁まで可), "goodPoint": "良い点を一文で", "improvement": "さらに良くするヒントを一文で"}`;
+
+const GEN_SYSTEM = `あなたは経験豊かな俳人です。ユーザーから与えられたキーワードをもとに、五七五の俳句を1句作ってください。季語を適切に含めてください。
+出力は必ず次のJSON形式のみで返してください。説明文やマークダウンのコードブロックは一切付けないこと。
+{"haiku": "俳句本文（3行、行の区切りは\\nで表す）", "kigo": "使用した季語", "note": "句に込めた狙いを一文で"}`;
+
+const HINT_SYSTEM = `あなたは俳句の指導者です。俳句初心者がこれから一句詠むためのヒントを一つ作ってください。
+季節や季語の候補、着想のテーマ、情景のイメージ、技法のアドバイスを簡潔に示してください。
+季節や題材は毎回ランダムに変えてください。
+出力は必ず次のJSON形式のみで返してください。説明文やマークダウンのコードブロックは一切付けないこと。
+{"kigo": "季語の候補", "theme": "テーマ（例: 夏の夕暮れの静けさ）", "sceneHint": "情景のヒントを一〜二文で", "techniqueTip": "作句のコツを一文で"}`;
+
+function drawCard() {
+  let pool = CARD_DECK.map((c, i) => i).filter(i => !state.usedCardIndices.includes(i));
+  if (pool.length === 0) { state.usedCardIndices = []; pool = CARD_DECK.map((c, i) => i); }
+  const idx = pool[Math.floor(Math.random() * pool.length)];
+  state.usedCardIndices.push(idx);
+  return CARD_DECK[idx];
+}
+
+function escapeHtml(str) {
+  return (str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function lastEntry() { return state.history[state.history.length - 1]; }
+
+function scoreColorClass(delta) {
+  if (delta > 0.001) return 'up';
+  if (delta < -0.001) return 'down';
+  return 'flat';
+}
+
+const Actions = {
+  goHome() { state.screen = 'home'; state.error=''; render(); },
+  goKeyword() { state.screen = 'keyword'; state.error=''; render(); },
+  async goHint() {
+    state.screen = 'hint'; state.error=''; state.hintData = null; render();
+    await Actions.fetchHint();
+  },
+  setKeywords(v) { state.keywords = v; },
+  setDraft(v) { state.userDraft = v; },
+  setBrushDraft(v) { state.brushDraft = v; },
+  setApiKey(v) { state.apiKey = v; saveSettings(); },
+  setModel(v) { state.model = v; saveSettings(); render(); },
+
+  async fetchHint() {
+    state.hintLoading = true; state.error=''; render();
+    try {
+      state.hintData = await callClaude(HINT_SYSTEM, '俳句初心者向けのヒントを一つください。');
+    } catch (e) {
+      state.error = e.message;
+    } finally {
+      state.hintLoading = false; render();
+    }
+  },
+
+  async generateFromKeywords() {
+    if (!state.keywords.trim()) { state.error = 'キーワードを入力してください。'; render(); return; }
+    state.loading = true; state.error = ''; render();
+    try {
+      const gen = await callClaude(GEN_SYSTEM, `キーワード: ${state.keywords.trim()}`);
+      const scored = await callClaude(SCORE_SYSTEM, gen.haiku);
+      state.history = [{
+        label: 'AI作の俳句',
+        text: gen.haiku,
+        score: scored.score,
+        goodPoint: scored.goodPoint,
+        improvement: scored.improvement,
+        note: gen.note,
+        kigo: gen.kigo,
+      }];
+      state.usedCardIndices = [];
+      state.currentCard = null;
+      state.screen = 'result';
+    } catch (e) {
+      state.error = e.message;
+    } finally {
+      state.loading = false; render();
+    }
+  },
+
+  async scoreUserDraft() {
+    if (!state.userDraft.trim()) { state.error = '俳句を入力してください。'; render(); return; }
+    state.loading = true; state.error = ''; render();
+    try {
+      const scored = await callClaude(SCORE_SYSTEM, state.userDraft.trim());
+      state.history = [{
+        label: 'あなたの俳句',
+        text: state.userDraft.trim(),
+        score: scored.score,
+        goodPoint: scored.goodPoint,
+        improvement: scored.improvement,
+      }];
+      state.usedCardIndices = [];
+      state.currentCard = null;
+      state.screen = 'result';
+    } catch (e) {
+      state.error = e.message;
+    } finally {
+      state.loading = false; render();
+    }
+  },
+
+  drawTipCard() {
+    state.currentCard = drawCard();
+    state.brushDraft = lastEntry().text;
+    state.error = '';
+    render();
+  },
+
+  cancelBrush() {
+    state.currentCard = null;
+    render();
+  },
+
+  async scoreBrushup() {
+    if (!state.brushDraft.trim()) { state.error = 'ブラッシュアップ後の俳句を入力してください。'; render(); return; }
+    state.loading = true; state.error = ''; render();
+    try {
+      const scored = await callClaude(SCORE_SYSTEM, state.brushDraft.trim());
+      const prevScore = lastEntry().score;
+      state.history.push({
+        label: `ブラッシュアップ ${state.history.length}回目`,
+        text: state.brushDraft.trim(),
+        score: scored.score,
+        goodPoint: scored.goodPoint,
+        improvement: scored.improvement,
+        cardUsed: state.currentCard,
+        delta: +(scored.score - prevScore).toFixed(1),
+      });
+      state.currentCard = null;
+      state.brushDraft = '';
+    } catch (e) {
+      state.error = e.message;
+    } finally {
+      state.loading = false; render();
+    }
+  },
+
+  restart() {
+    state.screen = 'home';
+    state.keywords = '';
+    state.hintData = null;
+    state.userDraft = '';
+    state.history = [];
+    state.usedCardIndices = [];
+    state.currentCard = null;
+    state.brushDraft = '';
+    state.error = '';
+    render();
+  },
+};
+window.Actions = Actions;
+
+function renderSettings() {
+  const options = MODELS.map(m =>
+    `<option value="${m.value}" ${m.value===state.model?'selected':''}>${escapeHtml(m.label)}</option>`
+  ).join('');
+  return `
+  <details class="panel settings" ${state.apiKey ? '' : 'open'}>
+    <summary>⚙️ 設定（Anthropic APIキー・モデル）${state.apiKey ? ' - 設定済み' : ' - 未設定'}</summary>
+    <div class="row" style="margin-bottom:10px;">
+      <div>
+        <label class="field-label">Anthropic APIキー</label>
+        <input type="password" placeholder="sk-ant-..." value="${escapeHtml(state.apiKey)}"
+          oninput="Actions.setApiKey(this.value)">
+      </div>
+      <div>
+        <label class="field-label">使用モデル</label>
+        <select onchange="Actions.setModel(this.value)">${options}</select>
+      </div>
+    </div>
+    <p style="font-size:0.75rem; color:#8a8a8a; margin:0;">
+      APIキーはこの端末のブラウザ内（localStorage）にのみ保存され、Anthropic APIへの直接通信以外には送信されません。
+      共有・公開されたPCでは入力しないことをおすすめします。
+    </p>
+  </details>`;
+}
+
+function renderError() {
+  if (!state.error) return '';
+  return `<div class="error-box">⚠️ ${escapeHtml(state.error)}</div>`;
+}
+
+function renderHome() {
+  return `
+  <div class="mode-grid">
+    <div class="mode-card" onclick="Actions.goKeyword()">
+      <div class="icon">🤖</div>
+      <h3>AIにお任せモード</h3>
+      <p>キーワードを入力すると、AIがそこから一句詠みます。出来上がった俳句をAIが採点します。</p>
+    </div>
+    <div class="mode-card" onclick="Actions.goHint()">
+      <div class="icon">✍️</div>
+      <h3>自分で詠むモード</h3>
+      <p>AIがヒント（季語・テーマ・情景）を出します。それを手がかりに、あなた自身が俳句を詠みましょう。</p>
+    </div>
+  </div>`;
+}
+
+function renderKeyword() {
+  return `
+  <span class="back-link" onclick="Actions.goHome()">← モード選択に戻る</span>
+  <div class="panel">
+    <label class="field-label">キーワード（複数OK。例: 桜, 電車, 別れ）</label>
+    <input type="text" placeholder="キーワードを入力してください" value="${escapeHtml(state.keywords)}"
+      oninput="Actions.setKeywords(this.value)">
+    <div style="height:12px;"></div>
+    <button class="btn btn-primary btn-block" ${state.loading?'disabled':''} onclick="Actions.generateFromKeywords()">
+      ${state.loading ? '俳句を詠んでいます...' : '🖋 AIに俳句を作ってもらう'}
+    </button>
+  </div>
+  ${state.loading ? renderLoading('AIが一句詠んでいます...') : ''}
+  `;
+}
+
+function renderHint() {
+  const h = state.hintData;
+  return `
+  <span class="back-link" onclick="Actions.goHome()">← モード選択に戻る</span>
+  <div class="panel">
+    ${state.hintLoading ? renderLoading('AIがヒントを考えています...') : (h ? `
+      <div class="hint-box">
+        <div class="row-item"><b>季語の候補:</b> ${escapeHtml(h.kigo || '')}</div>
+        <div class="row-item"><b>テーマ:</b> ${escapeHtml(h.theme || '')}</div>
+        <div class="row-item"><b>情景のヒント:</b> ${escapeHtml(h.sceneHint || '')}</div>
+        <div class="row-item"><b>作句のコツ:</b> ${escapeHtml(h.techniqueTip || '')}</div>
+      </div>
+      <button class="btn btn-ghost" style="margin-bottom:14px;" ${state.hintLoading?'disabled':''} onclick="Actions.fetchHint()">🔄 別のヒントをもらう</button>
+    ` : '')}
+    <label class="field-label">あなたの俳句（五七五で詠んでみましょう）</label>
+    <textarea rows="3" placeholder="例: 桜舞う&#10;誰も知らない&#10;駅のベンチ" oninput="Actions.setDraft(this.value)">${escapeHtml(state.userDraft)}</textarea>
+    <div style="height:12px;"></div>
+    <button class="btn btn-primary btn-block" ${state.loading?'disabled':''} onclick="Actions.scoreUserDraft()">
+      ${state.loading ? '採点しています...' : '📝 俳句を採点する'}
+    </button>
+  </div>
+  ${state.loading ? renderLoading('AIが採点しています...') : ''}
+  `;
+}
+
+function renderLoading(msg) {
+  return `<div class="loading"><div class="spinner"></div>${escapeHtml(msg)}</div>`;
+}
+
+function renderScoreBlock(entry) {
+  const pct = Math.max(0, Math.min(100, (entry.score / 10) * 100));
+  return `
+    <div class="haiku-display">${escapeHtml(entry.text)}</div>
+    <div class="score-wrap">
+      <div class="score-num">${entry.score}<small>/10</small></div>
+      <div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="comment-row"><span class="tag good">良い点</span><span>${escapeHtml(entry.goodPoint || '')}</span></div>
+    <div class="comment-row"><span class="tag tip">ヒント</span><span>${escapeHtml(entry.improvement || '')}</span></div>
+    ${entry.kigo ? `<div style="margin-top:8px;"><span class="kw-chip">季語: ${escapeHtml(entry.kigo)}</span></div>` : ''}
+  `;
+}
+
+function renderResult() {
+  const latest = lastEntry();
+  if (!latest) return renderHome();
+
+  let cardSection = '';
+  if (state.currentCard) {
+    cardSection = `
+    <div class="card-draw">
+      <div class="icon">${state.currentCard.icon}</div>
+      <h4>ちょいたしカード:「${escapeHtml(state.currentCard.title)}」</h4>
+      <p>${escapeHtml(state.currentCard.tip)}</p>
+    </div>
+    <label class="field-label">この俳句をブラッシュアップしてみましょう</label>
+    <textarea rows="3" oninput="Actions.setBrushDraft(this.value)">${escapeHtml(state.brushDraft)}</textarea>
+    <div style="height:10px;"></div>
+    <div class="row">
+      <button class="btn btn-accent" ${state.loading?'disabled':''} onclick="Actions.scoreBrushup()">
+        ${state.loading ? '採点しています...' : '✨ ブラッシュアップ後を採点する'}
+      </button>
+      <button class="btn btn-ghost" ${state.loading?'disabled':''} onclick="Actions.cancelBrush()">やめる</button>
+    </div>
+    ${state.loading ? renderLoading('AIが採点しています...') : ''}
+    `;
+  } else {
+    cardSection = `
+    <button class="btn btn-accent btn-block" ${state.loading?'disabled':''} onclick="Actions.drawTipCard()">
+      🎴 ちょいたしカードを引いてブラッシュアップする
+    </button>`;
+  }
+
+  const historyRows = state.history.slice().reverse().map((entry, revIdx) => {
+    const idx = state.history.length - 1 - revIdx;
+    if (idx === state.history.length - 1) return '';
+    const deltaTxt = entry.delta === undefined ? '' :
+      `<span class="delta ${scoreColorClass(entry.delta)}">${entry.delta > 0 ? '▲+' + entry.delta : (entry.delta < 0 ? '▼' + entry.delta : '→±0')}</span>`;
+    return `
+    <div class="history-item">
+      <div class="history-head">
+        <span>${escapeHtml(entry.label)}${entry.cardUsed ? ` （${entry.cardUsed.icon} ${escapeHtml(entry.cardUsed.title)}）` : ''}</span>
+        <span>${entry.score}/10 ${deltaTxt}</span>
+      </div>
+      <div class="history-haiku">${escapeHtml(entry.text)}</div>
+    </div>`;
+  }).join('');
+
+  return `
+  <span class="back-link" onclick="Actions.goHome()">← モード選択に戻る</span>
+  <div class="panel">
+    <div class="history-head" style="margin-bottom:6px;">
+      <span><b>${escapeHtml(latest.label)}</b>${latest.cardUsed ? ` （${latest.cardUsed.icon} ${escapeHtml(latest.cardUsed.title)}を反映）` : ''}</span>
+      ${latest.delta !== undefined ? `<span class="delta ${scoreColorClass(latest.delta)}">${latest.delta > 0 ? '▲+' + latest.delta : (latest.delta < 0 ? '▼' + latest.delta : '→±0')} （前回比）</span>` : ''}
+    </div>
+    ${renderScoreBlock(latest)}
+  </div>
+  <div class="panel">
+    ${cardSection}
+  </div>
+  ${state.history.length > 1 ? `
+  <div class="panel">
+    <div style="font-weight:700; font-size:0.9rem; color:var(--indigo); margin-bottom:6px;">これまでの推移</div>
+    ${historyRows}
+    <div class="history-head" style="margin-top:8px; padding-top:8px; border-top:1px dashed #d8cfb8;">
+      <span>合計の伸び（最初 → 最新）</span>
+      <span class="delta ${scoreColorClass(latest.score - state.history[0].score)}">
+        ${(latest.score - state.history[0].score) > 0 ? '▲+' : (latest.score - state.history[0].score) < 0 ? '▼' : '→'}${Math.abs(+(latest.score - state.history[0].score).toFixed(1))}
+      </span>
+    </div>
+  </div>` : ''}
+  <button class="btn btn-ghost btn-block" onclick="Actions.restart()">🔁 最初からやり直す</button>
+  `;
+}
+
+function render() {
+  let body = '';
+  if (state.screen === 'home') body = renderHome();
+  else if (state.screen === 'keyword') body = renderKeyword();
+  else if (state.screen === 'hint') body = renderHint();
+  else if (state.screen === 'result') body = renderResult();
+
+  document.getElementById('app').innerHTML = `
+    <header class="top">
+      <h1>俳句道場</h1>
+      <p>AIと詠み、AIが採点し、ちょいたしカードで磨き上げる一句</p>
+    </header>
+    ${renderSettings()}
+    ${renderError()}
+    ${body}
+    <footer class="foot">五七五の心で、今日の一句を。</footer>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>

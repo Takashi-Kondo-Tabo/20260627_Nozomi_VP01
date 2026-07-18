@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ちょいたしカード一覧 - 俳句道場</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Noto+Sans+JP:wght@400;500;700&family=Yomogi&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --washi: #f6f1e6;
+    --ink: #263544;
+    --indigo: #223a5e;
+    --indigo-light: #375581;
+    --vermillion: #c0392b;
+    --gold: #b8860b;
+    --card-bg: #fffdf8;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: var(--washi);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(34,58,94,0.05) 0, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(192,57,43,0.05) 0, transparent 40%);
+    color: var(--ink);
+    font-family: 'Noto Sans JP', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  #app { max-width: 880px; margin: 0 auto; padding: 24px 16px 80px; }
+  header.top { text-align: center; margin-bottom: 20px; }
+  header.top h1 {
+    font-family: 'Shippori Mincho', serif; font-weight: 800;
+    font-size: 1.7rem; color: var(--indigo); margin: 0 0 4px;
+    letter-spacing: 0.05em;
+  }
+  header.top p { color: #6b7280; font-size: 0.85rem; margin: 0; }
+
+  .back-link { display:inline-block; font-size:0.85rem; color:var(--indigo-light); text-decoration:none; margin-bottom:14px; }
+  .back-link:hover { text-decoration: underline; }
+
+  .choitashi-logo {
+    text-align: center; padding: 14px 10px 10px; margin-bottom: 18px;
+    background: var(--card-bg); border: 1px solid #e4dcc8; border-radius: 14px;
+  }
+  .ct-word {
+    font-family: 'Yomogi', cursive; font-weight: 400; line-height: 1.05;
+    background-clip: text; -webkit-background-clip: text; color: transparent;
+    -webkit-text-stroke: 1.6px var(--ct-outline); paint-order: stroke fill;
+    display: inline-block; transform: rotate(var(--ct-tilt, 0deg));
+  }
+  .ct-word.ct-main {
+    --ct-outline: #2f9fe0; --ct-tilt: -1.5deg;
+    font-size: 3rem;
+    background-image: repeating-linear-gradient(45deg, #f5a742 0 7px, #fce3bd 7px 14px);
+  }
+  .ct-line2 { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:2px; }
+  .ct-word.ct-sub {
+    --ct-outline: #1c2b5e; --ct-tilt: 1deg;
+    font-size: 2.5rem;
+    background-image: repeating-linear-gradient(45deg, #ef5da8 0 6px, #fbd6e8 6px 12px);
+  }
+  .ct-doodles { font-size: 1.7rem; line-height:1; transform: rotate(-4deg); }
+  .ct-credit { font-family: 'Yomogi', cursive; font-size: 0.78rem; color: #6b6355; text-align: right; margin-top: 6px; padding-right: 4px; }
+  .ct-count { text-align:center; font-size: 0.82rem; color:#6b7280; margin-bottom: 18px; }
+
+  .card-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .tip-card {
+    background: linear-gradient(135deg, #fff9ec, #fdeed1);
+    border: 2px solid var(--gold); border-radius: 14px;
+    padding: 16px; text-align: center;
+  }
+  .tip-card .icon { font-size: 1.8rem; margin-bottom: 4px; }
+  .tip-card h4 { font-family:'Shippori Mincho',serif; color:#7a5b0a; margin: 4px 0 6px; font-size:1rem; }
+  .tip-card p { font-size: 0.82rem; color:#5c4a1e; margin:0; line-height:1.5; }
+  .tip-card .no { font-size: 0.7rem; color:#b39355; margin-bottom: 2px; }
+
+  footer.foot { text-align:center; font-size:0.75rem; color:#9aa0a6; margin-top: 30px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <h1>俳句道場</h1>
+    <p>ちょいたしカード 一覧</p>
+  </header>
+  <a class="back-link" href="index.html">&larr; 俳句道場に戻る</a>
+
+  <div class="choitashi-logo">
+    <div class="ct-word ct-main">ちょいたし</div>
+    <div class="ct-line2">
+      <span class="ct-doodles">🐱🐤</span>
+      <span class="ct-word ct-sub">カード</span>
+    </div>
+    <div class="ct-credit">2026.07.18　制作：多ぁ望＋くるすてぃーぬ</div>
+  </div>
+
+  <div class="ct-count" id="count"></div>
+  <div class="card-grid" id="grid"></div>
+
+  <footer class="foot">五七五の心で、今日の一句を。</footer>
+</div>
+
+<script>
+// Keep this list in sync with CARD_DECK in index.html.
+const CARD_DECK = [
+  { icon: '📰', title: '一文字が語る、時の流れ', tip: '今日目にした新聞やニュースの見出しから、ふと心に残った一語を句に取り入れてみましょう。日々の積み重ねが「時」を語りだします。' },
+  { icon: '🖋️', title: '名詞止めもイイネ', tip: '動詞や「〜だ」で終わらせず、名詞（体言止め）で句をすっと締めくくってみましょう。余韻がぐっと深まります。' },
+  { icon: '📅', title: '昨日あったこと', tip: '特別な出来事でなくて構いません。昨日ふと感じた小さな一場面を、句のどこかに紛れ込ませてみましょう。' },
+  { icon: '🌱', title: '1ミリの想いが語る', tip: 'ほんの小さな、言葉にしづらい気持ちを句に忍ばせてみましょう。季語（例:「春陽」）と組み合わせると、そっと寄り添います。' },
+  { icon: '🌈', title: '色を一つ足す', tip: '俳句の中に色彩を表す言葉（紅、白、青など）を一つ加えてみましょう。' },
+  { icon: '👂', title: '音を聞いてみる', tip: '鳥の声、雨音、電車の音など、聞こえてくる音を一つ描写に加えてみましょう。' },
+  { icon: '✋', title: '肌で感じる', tip: '冷たい、温かい、柔らかいなど、肌で感じる感覚を一語入れてみましょう。' },
+  { icon: '🔍', title: '名前を具体的に', tip: '「花」を「桜」、「鳥」を「雀」のように、より具体的な名前に置き換えてみましょう。' },
+  { icon: '⏳', title: '時間をひとさじ', tip: '「夕暮れ」「明け方」など、時間の流れを感じさせる言葉を入れてみましょう。' },
+  { icon: '🎭', title: '風に人格を', tip: '自然物を人のように表現してみましょう（例:「風が笑う」）。' },
+  { icon: '⚖️', title: '静と動を並べる', tip: '静かなものと動くものを、句の中で対比させてみましょう。' },
+  { icon: '✂️', title: '「や・かな・けり」を一つ', tip: '切れ字（や・かな・けり）を使い、句に余韻を作ってみましょう。' },
+  { icon: '🖼️', title: '言わずに残す', tip: 'すべてを説明せず、一部を読み手の想像に委ねてみましょう。' },
+  { icon: '🔢', title: '数をひとつ', tip: '「一つ」「三羽」など、具体的な数を入れると情景が締まります。' },
+  { icon: '👀', title: '近くに寄ってみる', tip: '遠くから見た景色から、すぐそばの小さなものへ視点を移してみましょう。' },
+  { icon: '🍃', title: '季語を主役に', tip: '季語をもっと句の中心に据えてみましょう。' },
+  { icon: '🤫', title: '動詞をひとつ引く', tip: '動詞を一つ減らし、名詞の並びだけで情景を描いてみましょう。' },
+  { icon: '🌙', title: '音のない一瞬', tip: '物音のしない、静かな瞬間を切り取ってみましょう。' },
+  { icon: '💭', title: '気持ちの言葉を消す', tip: '「嬉しい」「悲しい」のような感情語を消し、情景だけで気持ちをにおわせてみましょう。' },
+  { icon: '💗', title: '心に残ることは?', tip: 'いちばん心に残ったことは何か、句の種にしてみましょう。' },
+  { icon: '😄', title: 'とびきり嬉しかったこと', tip: '最近（今日や昨日）、嬉しかったことを句に忍ばせてみましょう。' },
+  { icon: '😢', title: '悲しかった・さみしかったこと', tip: 'とても悲しかったこと、さみしかったことを句の種にしてみましょう。' },
+  { icon: '🔁', title: '言いかえると?', tip: '同じ意味でも、別の言葉に言いかえられないか考えてみましょう。' },
+  { icon: '🔗', title: '季語と残りの音、共通点ある?', tip: '季語と、それ以外の十二音のあいだに共通点を持たせてみましょう。' },
+  { icon: '👅', title: 'どんな味?', tip: 'その情景にはどんな味がするか、想像して加えてみましょう。' },
+  { icon: '🧑', title: '詠み手はどんな人柄?', tip: 'この句を詠んだ人はどんな人柄か、想像しながら言葉を選んでみましょう。' },
+  { icon: '🎐', title: 'オノマトペを使ってみる', tip: '「しとしと」「じんじん」のような擬音・擬態語を入れてみましょう。' },
+  { icon: '🍛', title: '具体的なモノがある?', tip: '抽象的な言葉ではなく、目に見える具体的なモノを句に入れてみましょう。' },
+  { icon: '🎵', title: '余韻はある?', tip: '読み終えたあと、余韻が残る言葉で締めくくれているか確かめてみましょう。' },
+  { icon: '🗣️', title: '声に出して詠んでみる', tip: '実際に声に出して読み、心地よい調べになっているか確かめてみましょう。' },
+  { icon: '💬', title: '「モノ」に語ってもらう', tip: '句の中のモノ自身が語っているように詠んでみましょう。' },
+  { icon: '🎨', title: '絵になる景色が浮かぶ?', tip: '一枚の絵や写真のように、景色がはっきり思い浮かぶか確かめてみましょう。' },
+  { icon: '🔡', title: '助詞にこだわる', tip: '「に」「が」「は」など、助詞ひとつで印象が変わることを意識してみましょう。' },
+  { icon: '✨', title: 'オリジナリティは?', tip: '誰も書きそうにない、自分だけの視点や言葉を探してみましょう。' },
+  { icon: '❓', title: '違和感はある?', tip: '読み返して、しっくりこない言葉や違和感がないか確かめてみましょう。' },
+  { icon: '🕰️', title: 'いつ・どこは季語にまかせる', tip: '「いつ」「どこで」をあえて言わず、季語にその役割をゆだねてみましょう。' },
+  { icon: '👃', title: '香り・におい', tip: 'その場に漂う香りやにおいを句に加えてみましょう。' },
+  { icon: '🗑️', title: '省ける情報はない?', tip: '無くても伝わる言葉を削り、ワンシーンに絞り込めないか考えてみましょう。' },
+  { icon: '😌', title: 'カッコつけない', tip: '格好つけず、思ったことをそのまま素直に出してみましょう。' },
+  { icon: '📷', title: '過去の思い出に置き換える', tip: '今の情景を、過去の似た思い出に置き換えてみましょう（過去形にはせず、新鮮さは保って）。' },
+  { icon: '📦', title: '「コト」ではなく「モノ」を詠む', tip: '出来事（コト）そのものではなく、そこにあった物（モノ）を詠んでみましょう。' },
+];
+
+function escapeHtml(str) {
+  return (str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+document.getElementById('count').textContent = `全${CARD_DECK.length}枚`;
+document.getElementById('grid').innerHTML = CARD_DECK.map((c, i) => `
+  <div class="tip-card">
+    <div class="no">No.${i + 1}</div>
+    <div class="icon">${c.icon}</div>
+    <h4>${escapeHtml(c.title)}</h4>
+    <p>${escapeHtml(c.tip)}</p>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

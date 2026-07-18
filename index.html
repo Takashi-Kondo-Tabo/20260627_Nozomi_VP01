@@ -149,6 +149,8 @@
   }
   .ct-doodles { font-size: 1.7rem; line-height:1; transform: rotate(-4deg); }
   .ct-credit { font-family: 'Yomogi', cursive; font-size: 0.78rem; color: #6b6355; text-align: right; margin-top: 6px; padding-right: 4px; }
+  .ct-list-link { display:inline-block; font-size: 0.8rem; color: var(--indigo-light); text-decoration: none; margin-top: 8px; }
+  .ct-list-link:hover { text-decoration: underline; }
 
   .history-item { border-top: 1px solid #ece3d0; padding: 12px 0; }
   .history-item:first-child { border-top:none; }
@@ -558,6 +560,9 @@ function renderHome() {
       <h3>自分で詠むモード</h3>
       <p>AIがヒント（季語・テーマ・情景）を出します。それを手がかりに、あなた自身が俳句を詠みましょう。</p>
     </div>
+  </div>
+  <div style="text-align:center; margin-top:16px;">
+    <a class="ct-list-link" href="cards.html" target="_blank" rel="noopener">📖 ちょいたしカード一覧を見る（全${CARD_DECK.length}枚）</a>
   </div>`;
 }
 
@@ -615,6 +620,7 @@ function renderChoitashiLogo() {
       <span class="ct-word ct-sub">カード</span>
     </div>
     <div class="ct-credit">2026.07.18　制作：多ぁ望＋くるすてぃーぬ</div>
+    <a class="ct-list-link" href="cards.html" target="_blank" rel="noopener">📖 カード一覧を見る（全${CARD_DECK.length}枚）</a>
   </div>`;
 }
 

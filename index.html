@@ -177,6 +177,16 @@
     padding:3px 10px; border-radius:999px; font-size:0.78rem; margin:2px 4px 2px 0;
   }
   .kigo-description { font-size: 0.82rem; color: #6b7280; margin: 4px 0 0; line-height: 1.5; }
+
+  .saijiki-panel {
+    background: #eef7ee; border: 1px solid #cfe3cf; border-radius: 12px;
+    padding: 14px 16px; margin-top: 10px; max-height: 320px; overflow-y: auto;
+  }
+  .saijiki-head { font-family:'Shippori Mincho',serif; color:#2f6b3a; font-weight:700; margin-bottom:8px; font-size:0.95rem; }
+  .saijiki-item { padding: 6px 0; border-top: 1px dashed #cfe3cf; }
+  .saijiki-item:first-of-type { border-top: none; }
+  .saijiki-word { font-family:'Shippori Mincho',serif; font-weight:700; color:#2f6b3a; margin-right:8px; }
+  .saijiki-desc { font-size:0.8rem; color:#4a5c4a; }
   footer.foot { text-align:center; font-size:0.75rem; color:#9aa0a6; margin-top: 30px; }
 </style>
 </head>
@@ -237,6 +247,106 @@ const MODELS = [
   { value: 'claude-opus-4-8', label: 'Claude Opus 4.8（最高品質）' },
 ];
 
+const SAIJIKI = {
+  '春': [
+    { word: '桜', desc: '春を象徴する花。儚さや別れ、出会いを詠む代表的な季語。' },
+    { word: '梅', desc: '早春に咲く花。寒さの中の凛とした美しさを表す。' },
+    { word: '若葉', desc: '芽吹いたばかりの新しい葉。生命力やみずみずしさの象徴。' },
+    { word: '春風', desc: '穏やかで暖かい春の風。優しさや希望を感じさせる。' },
+    { word: '花見', desc: '桜を眺めて楽しむ行事。にぎやかさや華やぎを表す。' },
+    { word: '蝶', desc: '春に舞う蝶。軽やかさやはかなさを象徴する。' },
+    { word: '鶯', desc: '「ホーホケキョ」と鳴く春告げ鳥。春の訪れを知らせる。' },
+    { word: '春雨', desc: 'しとしとと静かに降る春の雨。しっとりとした情緒を添える。' },
+    { word: '菜の花', desc: '黄色い花畑が広がる春の風物詩。明るさと広がりを表す。' },
+    { word: '春眠', desc: '春の眠気やまどろみ。のどかで穏やかな心地を表す。' },
+    { word: '蛙', desc: '田んぼで鳴き始める蛙。春の生命のざわめきを象徴。' },
+    { word: '燕', desc: '南から渡ってくる燕。新しい季節の到来を告げる。' },
+    { word: '花吹雪', desc: '桜の花びらが舞い散る様子。華やかさと儚さが同居する。' },
+    { word: '春霞', desc: 'ぼんやりと景色をおおう霞。柔らかく夢のような情景を作る。' },
+    { word: '卒業', desc: '学びの節目を表す行事。別れと新たな旅立ちを詠む。' },
+    { word: '雛祭り', desc: '三月三日の女の子の節句。華やかさと愛らしさを表す。' },
+    { word: '彼岸', desc: '春分の頃、先祖を偲ぶ時期。しみじみとした情感を添える。' },
+    { word: '土筆', desc: '早春に顔を出す野草。素朴な春の息吹を感じさせる。' },
+  ],
+  '夏': [
+    { word: '蝉', desc: '夏の盛りに鳴き続ける蝉。暑さや命の短さを象徴する。' },
+    { word: '花火', desc: '夜空を彩る夏の風物詩。華やかさと儚さを同時に表す。' },
+    { word: '夕立', desc: '夏の午後に急に降る雨。涼しさと勢いをもたらす。' },
+    { word: '金魚', desc: '夏の縁日でおなじみの魚。涼やかさと懐かしさを表す。' },
+    { word: '蛍', desc: '夏の夜に光る蛍。幻想的で儚い美しさを象徴する。' },
+    { word: '向日葵', desc: '太陽に向かって咲く花。夏の力強さや明るさを表す。' },
+    { word: '入道雲', desc: 'もくもくと立ち上る夏の雲。夏空のダイナミックさを表す。' },
+    { word: '夏休み', desc: '子どもたちの長い休み。開放感や思い出を詠む。' },
+    { word: '扇風機', desc: '夏の暮らしに欠かせない道具。涼をとる日常を描く。' },
+    { word: '海水浴', desc: '夏の代表的なレジャー。開放的で賑やかな情景を表す。' },
+    { word: '朝顔', desc: '夏の朝に咲く花。清々しさと一日の始まりを象徴する。' },
+    { word: '夕涼み', desc: '夏の夕方に涼をとること。穏やかでのどかな時間を表す。' },
+    { word: '天の川', desc: '七夕の夜空にかかる星の帯。ロマンチックで壮大な情景。' },
+    { word: '打ち水', desc: '夏の暑さをしずめるためにまく水。涼やかな心遣いを表す。' },
+    { word: '昼寝', desc: '夏の暑い時間帯にとる休息。のんびりとした夏の午後を描く。' },
+    { word: '西瓜', desc: '夏を代表する果物。みずみずしさと家族団らんを表す。' },
+    { word: '梅雨', desc: '初夏に続く長雨の季節。しっとりとした憂いを含む。' },
+    { word: '蚊帳', desc: '虫を防ぐための夏の道具。懐かしい夏の夜を思わせる。' },
+  ],
+  '秋': [
+    { word: '紅葉', desc: '色づいた秋の葉。移ろいゆく季節の美しさを象徴する。' },
+    { word: '月見', desc: '中秋の名月を眺める行事。静かで趣深い情緒を表す。' },
+    { word: '蜻蛉', desc: '秋空を飛ぶとんぼ。涼しさと季節の移ろいを感じさせる。' },
+    { word: '秋風', desc: '涼しく吹き渡る秋の風。もの寂しさや静けさを表す。' },
+    { word: '稲刈り', desc: '実った稲を刈り取る農作業。実りと感謝を詠む。' },
+    { word: '柿', desc: '秋に実る果物。日本の里山の風景を思わせる。' },
+    { word: '虫の声', desc: '秋の夜に響く虫の音。静けさの中の情感を表す。' },
+    { word: '落ち葉', desc: '散りゆく木の葉。無常観やもの寂しさを象徴する。' },
+    { word: '台風', desc: '秋に多い暴風雨。自然の激しさと不安を表す。' },
+    { word: '栗', desc: '秋の味覚の代表格。素朴な実りの喜びを詠む。' },
+    { word: '秋桜', desc: 'コスモスの別名。可憐で儚げな秋の花。' },
+    { word: '名月', desc: '中秋の澄み切った満月。静謐で美しい情景を表す。' },
+    { word: '案山子', desc: '田んぼに立つ人形。のどかで少し寂しい里の風景。' },
+    { word: '渡り鳥', desc: '冬に向けて南へ渡る鳥。旅立ちや別れを象徴する。' },
+    { word: '銀杏', desc: '黄色く色づくイチョウ。秋の彩りと香りを表す。' },
+    { word: '松茸', desc: '秋の香り高いきのこ。豊かな実りと季節の贅沢を表す。' },
+    { word: '秋思', desc: '秋にふとわく物思い。しみじみとした感傷を表す。' },
+    { word: '新米', desc: 'その年に収穫されたばかりの米。実りの喜びを詠む。' },
+  ],
+  '冬': [
+    { word: '雪', desc: '冬を象徴する白い結晶。静けさや清らかさを表す。' },
+    { word: '木枯らし', desc: '冬の初めに吹く冷たく強い風。厳しさと寂しさを表す。' },
+    { word: '霜', desc: '冬の朝に降りる白い結晶。冷たさと静寂を象徴する。' },
+    { word: 'こたつ', desc: '冬の暮らしに欠かせない暖房具。温もりと団らんを表す。' },
+    { word: '息白し', desc: '寒さで白く見える息。厳寒の実感を伝える。' },
+    { word: '蜜柑', desc: '冬にこたつで食べる果物。あたたかい家庭の情景を表す。' },
+    { word: '除夜の鐘', desc: '大晦日に鳴らす鐘。一年の締めくくりと祈りを表す。' },
+    { word: '冬の月', desc: '澄んだ冬空にかかる月。凛とした静けさを表す。' },
+    { word: '氷柱', desc: '軒先などにできる氷の柱。厳しい寒さの造形美。' },
+    { word: '雪だるま', desc: '雪で作る人形。冬の遊びや子どもの喜びを表す。' },
+    { word: '焚き火', desc: '冬に暖をとるための火。あたたかさと懐かしさを表す。' },
+    { word: '寒椿', desc: '寒い時期に咲く椿。凛とした美しさを象徴する。' },
+    { word: 'セーター', desc: '冬の防寒着。日常の暮らしのぬくもりを表す。' },
+    { word: 'かまくら', desc: '雪で作った小屋。雪国の冬の風物詩。' },
+    { word: '冬眠', desc: '動物たちが冬を越すために眠ること。静寂と休息を表す。' },
+    { word: '霜柱', desc: '土から立ち上る氷の柱。冬の朝の冷たさを表す。' },
+    { word: '鍋', desc: '冬に囲む温かい料理。団らんとぬくもりを詠む。' },
+    { word: '枯野', desc: '草木が枯れ果てた冬の野原。もの寂しい広がりを表す。' },
+  ],
+  '新年': [
+    { word: '初日の出', desc: '元旦に昇る太陽。新しい一年への希望を象徴する。' },
+    { word: '初詣', desc: '年の初めに神社仏閣へお参りすること。祈りと清々しさを表す。' },
+    { word: '門松', desc: '正月に玄関に飾る松飾り。年神様を迎える目印。' },
+    { word: '年賀状', desc: '新年の挨拶を送るはがき。人とのつながりを表す。' },
+    { word: '初夢', desc: '新年最初に見る夢。一年の吉凶を占う縁起物。' },
+    { word: '若水', desc: '元旦に初めて汲む水。清らかな一年の始まりを表す。' },
+    { word: '七草', desc: '一月七日に食べる七草粥。無病息災を願う行事。' },
+    { word: 'お年玉', desc: '正月に子どもへ贈るお金。新年のにぎわいを表す。' },
+    { word: '鏡餅', desc: '正月に飾る丸い餅。豊かさと年神様への供えを表す。' },
+    { word: '松の内', desc: '門松を飾っておく正月の期間。まだ続くお正月気分。' },
+    { word: '初笑い', desc: '新年に初めて笑うこと。明るい一年の始まりを表す。' },
+    { word: '書き初め', desc: '新年に初めて筆をとること。決意や抱負を込める。' },
+    { word: '初景色', desc: '新年に初めて目にする景色。清新な気持ちを表す。' },
+    { word: '羽子板', desc: '正月遊びの道具。にぎやかで華やいだ正月風景。' },
+    { word: '去年今年', desc: '年をまたぐ時の流れそのもの。時間の連続と節目を表す。' },
+  ],
+};
+
 const state = {
   apiKey: localStorage.getItem(STORAGE_KEY_API) || '',
   model: localStorage.getItem(STORAGE_KEY_MODEL) || 'claude-sonnet-5',
@@ -251,6 +361,7 @@ const state = {
   usedCardIndices: [],
   currentCard: null,
   brushDraft: '',
+  showSaijiki: false,
 };
 
 function saveSettings() {
@@ -350,9 +461,9 @@ async function callClaude(system, userText, maxTokens = 500) {
 
 const SCORE_SYSTEM = `あなたは俳句の専門家審査員です。与えられた俳句を10点満点で採点してください。
 採点基準: 季語の有無と効果的な使用、五七五のリズム、情景の鮮明さ、独創性・意外性、余韻の深さ。
-句に季語が含まれていれば、その季語と、季節・意味・情景を説明する解説文も添えてください。季語が無ければ空文字にしてください。
+句に季語が含まれていれば、その季語と、季節・意味・情景を説明する解説文、季節の分類も添えてください。季語が無ければ空文字にしてください。
 出力は必ず次のJSON形式のみで返してください。説明文やマークダウンのコードブロックは一切付けないこと。
-{"score": 数値(0から10、小数点1桁まで可), "goodPoint": "良い点を一文で", "improvement": "さらに良くするヒントを一文で", "kigo": "句に含まれる季語（無ければ空文字）", "kigoDescription": "その季語の季節・意味・情景を説明する解説文を一文で（季語が無ければ空文字）"}`;
+{"score": 数値(0から10、小数点1桁まで可), "goodPoint": "良い点を一文で", "improvement": "さらに良くするヒントを一文で", "kigo": "句に含まれる季語（無ければ空文字）", "kigoDescription": "その季語の季節・意味・情景を説明する解説文を一文で（季語が無ければ空文字）", "season": "季語の季節。春/夏/秋/冬/新年のいずれか一つ（季語が無ければ空文字）"}`;
 
 const GEN_SYSTEM = `あなたは経験豊かな俳人です。ユーザーから与えられたキーワードをもとに、五七五の俳句を1句作ってください。季語を適切に含めてください。
 出力は必ず次のJSON形式のみで返してください。説明文やマークダウンのコードブロックは一切付けないこと。
@@ -423,9 +534,11 @@ const Actions = {
         note: gen.note,
         kigo: scored.kigo || gen.kigo,
         kigoDescription: scored.kigoDescription,
+        season: scored.season,
       }];
       state.usedCardIndices = [];
       state.currentCard = null;
+      state.showSaijiki = false;
       state.screen = 'result';
     } catch (e) {
       state.error = e.message;
@@ -447,9 +560,11 @@ const Actions = {
         improvement: scored.improvement,
         kigo: scored.kigo,
         kigoDescription: scored.kigoDescription,
+        season: scored.season,
       }];
       state.usedCardIndices = [];
       state.currentCard = null;
+      state.showSaijiki = false;
       state.screen = 'result';
     } catch (e) {
       state.error = e.message;
@@ -476,6 +591,11 @@ const Actions = {
     render();
   },
 
+  toggleSaijiki() {
+    state.showSaijiki = !state.showSaijiki;
+    render();
+  },
+
   async scoreBrushup() {
     if (!state.brushDraft.trim()) { state.error = 'ブラッシュアップ後の俳句を入力してください。'; render(); return; }
     state.loading = true; state.error = ''; render();
@@ -492,9 +612,11 @@ const Actions = {
         delta: +(scored.score - prevScore).toFixed(1),
         kigo: scored.kigo,
         kigoDescription: scored.kigoDescription,
+        season: scored.season,
       });
       state.currentCard = null;
       state.brushDraft = '';
+      state.showSaijiki = false;
     } catch (e) {
       state.error = e.message;
     } finally {
@@ -511,6 +633,7 @@ const Actions = {
     state.usedCardIndices = [];
     state.currentCard = null;
     state.brushDraft = '';
+    state.showSaijiki = false;
     state.error = '';
     render();
   },
@@ -624,6 +747,22 @@ function renderChoitashiLogo() {
   </div>`;
 }
 
+function renderSaijikiPanel(season) {
+  const words = SAIJIKI[season] || [];
+  if (words.length === 0) return '';
+  const items = words.map(w => `
+    <div class="saijiki-item">
+      <span class="saijiki-word">${escapeHtml(w.word)}</span>
+      <span class="saijiki-desc">${escapeHtml(w.desc)}</span>
+    </div>
+  `).join('');
+  return `
+  <div class="saijiki-panel">
+    <div class="saijiki-head">🍀 ${escapeHtml(season)}の季語一覧</div>
+    ${items}
+  </div>`;
+}
+
 function renderScoreBlock(entry) {
   const pct = Math.max(0, Math.min(100, (entry.score / 10) * 100));
   return `
@@ -666,11 +805,20 @@ function renderResult() {
     ${state.loading ? renderLoading('AIが採点しています...') : ''}
     `;
   } else {
+    const season = latest.season;
     cardSection = `
     ${renderChoitashiLogo()}
-    <button class="btn btn-accent btn-block" ${state.loading?'disabled':''} onclick="Actions.drawTipCard()">
-      🌸 ちょいたしカードを引いてブラッシュアップする
-    </button>`;
+    <div class="row">
+      <button class="btn btn-accent" ${state.loading?'disabled':''} onclick="Actions.drawTipCard()">
+        🌸 ちょいたしカードを引いてブラッシュアップする
+      </button>
+      ${season ? `
+      <button class="btn btn-ghost" ${state.loading?'disabled':''} onclick="Actions.toggleSaijiki()">
+        🍀 ${escapeHtml(season)}の季語一覧を見る
+      </button>` : ''}
+    </div>
+    ${season && state.showSaijiki ? renderSaijikiPanel(season) : ''}
+    `;
   }
 
   const historyRows = state.history.slice().reverse().map((entry, revIdx) => {

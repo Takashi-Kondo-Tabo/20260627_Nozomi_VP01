@@ -787,6 +787,7 @@ function renderResult() {
   let cardSection = '';
   if (state.currentCard) {
     cardSection = `
+    <span class="back-link" onclick="Actions.cancelBrush()">← 戻る</span>
     <div class="card-draw">
       <div class="icon">${state.currentCard.icon}</div>
       <h4>🌸 ちょいたしカード:「${escapeHtml(state.currentCard.title)}」</h4>

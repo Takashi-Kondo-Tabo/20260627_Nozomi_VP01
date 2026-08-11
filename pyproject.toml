@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "photomap"
+version = "1.0.0"
+description = "Google フォトの写真を日付で抽出し、ジオタグを地図に載せたドキュメントを生成する"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+# Claude による解説生成
+claude = ["anthropic>=0.40"]
+# サムネイル生成(無くても元画像のコピーで動作します)
+images = ["pillow>=10.0"]
+all = ["anthropic>=0.40", "pillow>=10.0"]
+
+[project.scripts]
+photomap = "photomap.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["photomap*"]
+
+[tool.setuptools.package-data]
+photomap = ["py.typed"]

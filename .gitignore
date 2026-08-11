@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# 生成物
+out/
+demo-out/
+*.local.html
+
+# 認証情報(絶対にコミットしないこと)
+client_secret*.json
+token.json
+.env
